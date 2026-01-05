@@ -16,11 +16,14 @@ configuration {
     
 }
 
-/* ---- Load pywal colors (custom wal template) ---- */
-@theme "~/.cache/wal/colors-rofi-pywal"
-
-/* ---- Load wallpaper ---- */
-@import "~/.config/ml4w/cache/current_wallpaper.rasi"
+* {
+    background:                 rgba(20,20,24,0.88);
+    background-alt:             rgba(28,28,34,0.92);
+    foreground:                 #ffffff;
+    foreground-muted:           rgba(255,255,255,0.7);
+    accent:                     rgba(255,255,255,0.18);
+    accent-strong:              rgba(255,255,255,0.35);
+}
 
 // Main //
 window {
@@ -105,6 +108,7 @@ listbox {
 
 listview {
     padding:                     1em;
+    border:                     0px;
     spacing:                     0em;
     margin:                      0em;
     enabled:                     true;

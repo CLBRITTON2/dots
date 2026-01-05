@@ -1,184 +1,169 @@
-/* -----------------------------------------------------
- * General
- * ----------------------------------------------------- */
-@import '../../.cache/wal/colors-waybar.css';
+/* -------- Colors -------- */
+@define-color bg_main rgba(20, 20, 24, 0.75);
+@define-color bg_alt rgba(28, 28, 34, 0.85);
+@define-color border_main rgba(255, 255, 255, 0.12);
 
-@define-color backgroundlight @color5;
-@define-color backgrounddark @color11;
-@define-color textcolor1 #FFFFFF;
-@define-color iconcolor #FFFFFF;
+@define-color accent #8aadf4;
+@define-color accent_alt #c6a0f6;
 
+@define-color text_main #ffffff;
+@define-color text_muted rgba(255, 255, 255, 0.7);
+@define-color error #ed8796;
 
+/* -------- General -------- */
 * {
-    font-family: "Fira Sans Semibold", "Font Awesome 6 Free", FontAwesome,  Roboto, Helvetica, Arial, sans-serif;
+    font-family: "Fira Sans Semibold",
+                 "Font Awesome 7 Free",
+                 "Font Awesome 6 Free",
+                 "Material Icons",
+                 Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
     border: none;
-    border-radius: 0px;
-    font-size: 15px;
+    border-radius: 0;
 }
 
 window#waybar {
-    background-color: rgba(0,0,0,0);
-    border-bottom: 0px solid #ffffff;
     background: transparent;
-    transition-property: background-color;
+}
+
+/* -----------------------------------------------------
+ * Module Containers
+ * ----------------------------------------------------- */
+.modules-left,
+.modules-center,
+.modules-right {
+    background: @bg_main;
+    border-radius: 14px;
+    border: 1px solid @border_main;
+    margin: 10px;
+    padding: 4px;
+    box-shadow:
+        inset 0 1px 2px rgba(255,255,255,0.18),
+        0 8px 20px rgba(0,0,0,0.35);
+}
+
+/* -----------------------------------------------------
+ * Base Module Styling
+ * ----------------------------------------------------- */
+label.module,
+#clock,
+#pulseaudio,
+#network,
+#bluetooth,
+#battery,
+#memory,
+#disk,
+#cpu,
+#tray,
+#custom-* {
+    color: @text_main;
+    padding: 4px 10px;
+    margin: 2px;
+    border-radius: 10px;
+    transition: background 0.25s ease;
+}
+
+/* Hover */
+label.module:hover,
+#clock:hover,
+#pulseaudio:hover,
+#network:hover,
+#bluetooth:hover {
+    background: rgba(255,255,255,0.08);
 }
 
 /* -----------------------------------------------------
  * Workspaces
  * ----------------------------------------------------- */
 #workspaces {
-    margin: 10px 5px 10px 0px;
-    padding: 0px 0px 0px 0px;
-    border-radius: 30px;
-    color: @textcolor1;
-    background-color: transparent;
+    padding: 4px;
 }
 
 #workspaces button {
-    background: @textcolor1;
-    padding: 0px 5px 0px 5px;
-    margin: 0px 5px 0px 0px;
-    border-radius: 30px;
-    color: @backgrounddark;
-    transition: all 0.3s ease-in-out;
-}
-
-#workspaces button.active {
-    color: @textcolor1;
-    padding: 0px 5px 0px 5px;
-    margin: 0px 5px 0px 0px;
-    background: @backgrounddark;
-    border-radius: 30px;
-    transition: all 0.3s ease-in-out;
-    border: 0px;
+    color: @text_muted;
+    padding: 2px 8px;
+    margin: 0 3px;
+    border-radius: 999px;
+    transition: all 0.25s ease;
 }
 
 #workspaces button:hover {
-    color: @textcolor1;
-    padding: 0px 5px 0px 5px;
-    margin: 0px 5px 0px 0px;
-    background: @backgrounddark;
-    border-radius: 30px;
+    background: rgba(255,255,255,0.12);
+    color: @text_main;
+}
+
+#workspaces button.active {
+    background: rgba(255, 255, 255, 0.14);
+    color: @text_main;
+    font-weight: 600;
+    box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.35),
+        inset 0 -1px 1px rgba(0,0,0,0.25);
+}
+
+/* -----------------------------------------------------
+ * Clock
+ * ----------------------------------------------------- */
+#clock {
+    font-weight: 600;
+}
+
+/* -----------------------------------------------------
+ * Audio
+ * ----------------------------------------------------- */
+#pulseaudio.muted {
+    color: @text_muted;
+}
+
+/* -----------------------------------------------------
+ * Network / Bluetooth
+ * ----------------------------------------------------- */
+#network.disconnected {
+    color: @text_muted;
+}
+
+#bluetooth.off {
+    color: @text_muted;
+}
+
+/* -----------------------------------------------------
+ * Battery
+ * ----------------------------------------------------- */
+#battery.charging {
+    color: @accent;
+}
+
+#battery.critical:not(.charging) {
+    color: @error;
+    animation: blink 1s linear infinite alternate;
+}
+
+@keyframes blink {
+    from { opacity: 1; }
+    to   { opacity: 0.5; }
+}
+
+/* -----------------------------------------------------
+ * Tray
+ * ----------------------------------------------------- */
+#tray {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
 }
 
 /* -----------------------------------------------------
  * Tooltips
  * ----------------------------------------------------- */
 tooltip {
-    border-radius: 10px;
-    background-color: @backgrounddark;
-    opacity:0.9;
+    background: @bg_alt;
+    border-radius: 12px;
+    border: 1px solid @border_main;
+    color: @text_main;
+    padding: 6px;
+    opacity: 0.95;
 }
 
-tooltip label {
-    color: @textcolor1;
-    padding:0px;
-    margin:0px;
-}
-
-/* -----------------------------------------------------
- * Modules
- * ----------------------------------------------------- */
-.modules-left > widget:first-child > #workspaces {
-    margin-left: 10;
-}
-
-.modules-right > widget:last-child > #workspaces {
-    margin-right: 10;
-}
-
-/* -----------------------------------------------------
- * Module Base Styling
- * ----------------------------------------------------- */
-#window,
-#custom-notification,
-#custom-tools,
-#custom-system,
-#custom-exit,
-#custom-updates,
-#clock,
-#pulseaudio,
-#network,
-#bluetooth,
-#custom-wallpaper,
-#custom-brightness,
-#memory,
-#disk,
-#cpu {
-    border-radius: 10px;
-    margin: 10px 10px 10px 0px;
-    padding: 0px 10px;
-}
-
-/* -----------------------------------------------------
- * Text + Icon Modules
- * ----------------------------------------------------- */
-#memory,
-#disk,
-#cpu,
-#network,
-#pulseaudio,
-#clock,
-#custom-updates {
-    padding: 2px 10px 0px 10px;
-}
-
-/* -----------------------------------------------------
- * Dark Background Modules
- * ----------------------------------------------------- */
-#window,
-#custom-notification,
-#custom-tools,
-#custom-system,
-#custom-exit,
-#custom-updates,
-#clock,
-#pulseaudio,
-#network,
-#disk,
-#memory,
-#cpu,
-#bluetooth,
-#tray {
-    background-color: @backgrounddark;
-    color: @textcolor1;
-}
-
-/* -----------------------------------------------------
- * Light Background Modules
- * ----------------------------------------------------- */
-#custom-wallpaper,
-#custom-brightness {
-    background-color: #FFFFFF;
-    color: @backgrounddark;
-}
-
-/* -----------------------------------------------------
- * Window States
- * ----------------------------------------------------- */
-window#waybar.empty #window {
-    background-color: transparent;
-}
-
-/* -----------------------------------------------------
- * Bluetooth States
- * ----------------------------------------------------- */
-#bluetooth.off {
-    background-color: transparent;
-    padding: 0px;
-    margin: 0px;
-}
-
-/* -----------------------------------------------------
- * Tray Items
- * ----------------------------------------------------- */
-#tray > .needs-attention {
-    -gtk-icon-effect: highlight;
-    background-color: #eb4d4b;
-}
-
-#tray {
-    border-radius: 10px;
-    margin: 10px 10px 10px 0px;
-    padding: 2px 5px 0px 10px;
-}

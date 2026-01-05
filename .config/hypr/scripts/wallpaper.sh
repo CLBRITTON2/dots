@@ -4,13 +4,11 @@
 # -----------------------------------------------------
 CACHE_DIR="$HOME/.config/wallpapercache"
 LOCKFILE="$CACHE_DIR/waypaper-running"
-
 WAYPAPER_CONFIG="$HOME/.config/waypaper/config.ini"
 CURRENT_WALLPAPER="$CACHE_DIR/current_wallpaper.png"
 BLURRED_WALLPAPER="$CACHE_DIR/blurred_wallpaper.png"
 SQUARE_WALLPAPER="$CACHE_DIR/square_wallpaper.png"
 RASI_FILE="$CACHE_DIR/current_wallpaper.rasi"
-
 BLUR="50x30"
 
 # -----------------------------------------------------
@@ -49,7 +47,7 @@ WALLPAPER="${WALLPAPER/#\~/$HOME}"
 [[ -f "$WALLPAPER" ]] || exit 1
 
 # -----------------------------------------------------
-# Apply wallpaper (hyprpaper)
+# Apply wallpaper
 # -----------------------------------------------------
 cp "$WALLPAPER" "$CURRENT_WALLPAPER"
 pkill hyprpaper 2>/dev/null || true
@@ -60,17 +58,6 @@ hyprpaper >/dev/null 2>&1 &
 # Kill picker
 # -----------------------------------------------------
 pkill -f waypaper 2>/dev/null || true
-
-# -----------------------------------------------------
-# Theme + UI
-# -----------------------------------------------------
-wal -q -e -i "$WALLPAPER"
-"$HOME/.config/waybar/launch.sh"
-
-command -v pywalfox >/dev/null && pywalfox update
-
-sleep 0.1
-swaync-client -rs
 
 # -----------------------------------------------------
 # Derived images

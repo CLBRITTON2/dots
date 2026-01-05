@@ -1,9 +1,4 @@
 /* -----------------------------------------------------
- * Import Pywal colors
- * ----------------------------------------------------- */
-@import '../../.cache/wal/colors-wlogout.css';
-
-/* -----------------------------------------------------
  * General
  * ----------------------------------------------------- */
 
@@ -38,13 +33,13 @@ button:focus {
 }
 
 button:hover {
-    background-color: @color11;
-   	opacity: 0.8;
+    background-color: rgba(205, 214, 244, 0.15);
+    opacity: 0.9;
     color: #cdd6f4;
     background-size: 30%;
     margin: 30px;
     border-radius: 80px;
-    box-shadow: 0 0 50px @color7;
+    box-shadow: 0 0 50px rgba(205, 214, 244, 0.35);
 }
 
 /* Adjust the size of the icon or content inside the button */

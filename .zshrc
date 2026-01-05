@@ -24,16 +24,6 @@ set -o vi
 PROMPT="┌[%T]-[%n]-[%~]
 └─> "
 
-precmd() {
-  # Set terminal title to "kitty [current directory]"
-  print -Pn "\e]0;  %~\a"
-}
-
-preexec() {
-  # Set terminal title to "kitty [current directory]"
-  print -Pn "\e]0;  %~\a"
-}
-
 # -----------------------------------------------------
 # ALIASES
 # -----------------------------------------------------
@@ -44,8 +34,3 @@ alias lt='eza -a --tree --level=1 --icons=always'
 alias v='$EDITOR'
  alias ..='cd ..'
  alias ...='cd ../..'
-
-# -----------------------------------------------------
-# Pywal
-# -----------------------------------------------------
-cat ~/.cache/wal/sequences
