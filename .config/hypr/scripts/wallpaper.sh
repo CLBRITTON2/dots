@@ -64,9 +64,7 @@ pkill -f waypaper 2>/dev/null || true
 # -----------------------------------------------------
 # Theme + UI
 # -----------------------------------------------------
-wal -q -i "$WALLPAPER"
-source "$HOME/.cache/wal/colors.sh"
-
+wal -q -e -i "$WALLPAPER"
 "$HOME/.config/waybar/launch.sh"
 
 command -v pywalfox >/dev/null && pywalfox update
