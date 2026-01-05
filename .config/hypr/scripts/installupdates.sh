@@ -4,9 +4,6 @@ echo ":: Update started."
 # System update and cleanup
 sudo pacman -Syu
 
-echo ":: Cleaning package cache..."
-sudo pacman -Scc --noconfirm
-
 echo ":: Removing orphaned packages..."
 orphans=$(pacman -Qdtq)
 if [[ -n "$orphans" ]]; then

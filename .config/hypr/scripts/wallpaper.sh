@@ -1,127 +1,87 @@
 #!/bin/bash
 # -----------------------------------------------------
-# Set defaults
+# Const
 # -----------------------------------------------------
-waypaperrunning="$HOME/.config/wallpapercache/waypaper-running"
-blurredwallpaper="$HOME/.config/wallpapercache/blurred_wallpaper.png"
-squarewallpaper="$HOME/.config/wallpapercache/square_wallpaper.png"
-rasifile="$HOME/.config/wallpapercache/current_wallpaper.rasi"
-waypaper_config="$HOME/.config/waypaper/config.ini"
-blur="50x30"
+CACHE_DIR="$HOME/.config/wallpapercache"
+LOCKFILE="$CACHE_DIR/waypaper-running"
 
-# Ensure the script only runs once
-if [ -f "$waypaperrunning" ]; then
-  echo ":: Another instance is running, exiting"
-  exit 1
-fi
-touch "$waypaperrunning"
-echo ":: Lock file created at $waypaperrunning"
+WAYPAPER_CONFIG="$HOME/.config/waypaper/config.ini"
+CURRENT_WALLPAPER="$CACHE_DIR/current_wallpaper.png"
+BLURRED_WALLPAPER="$CACHE_DIR/blurred_wallpaper.png"
+SQUARE_WALLPAPER="$CACHE_DIR/square_wallpaper.png"
+RASI_FILE="$CACHE_DIR/current_wallpaper.rasi"
 
-# -----------------------------------------------------
-# Get selected wallpaper
-# -----------------------------------------------------
-if [ "$1" = "init" ]; then
-  if [ -f "$waypaper_config" ]; then
-    wallpaper=$(grep '^wallpaper =' "$waypaper_config" | cut -d '=' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-    wallpaper=$(echo "$wallpaper" | sed "s|~|$HOME|")
-    echo ":: Init mode, setting wallpaper from config: $wallpaper" | tee -a /tmp/wallpaper_script.log
-    waypaper --wallpaper "$wallpaper" # Set wallpaper without GUI
-    rm -f "$waypaperrunning"
-    echo ":: Lock file removed (init)" | tee -a /tmp/wallpaper_script.log
-    exit 0
-  else
-    echo ":: Error: Waypaper config $waypaper_config not found" | tee -a /tmp/wallpaper_script.log
-    rm -f "$waypaperrunning"
-    exit 1
-  fi
-fi
-
-# Use provided argument if given, otherwise read from config.ini
-if [ -n "$1" ]; then
-  wallpaper="$1"
-else
-  if [ -f "$waypaper_config" ]; then
-    wallpaper=$(grep '^wallpaper =' "$waypaper_config" | cut -d '=' -f2- | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-    wallpaper=$(echo "$wallpaper" | sed "s|~|$HOME|")
-  else
-    echo ":: Error: Waypaper config $waypaper_config not found" | tee -a /tmp/wallpaper_script.log
-    rm -f "$waypaperrunning"
-    exit 1
-  fi
-fi
-
-used_wallpaper="$wallpaper"
-echo ":: Processing wallpaper $used_wallpaper" | tee -a /tmp/wallpaper_script.log
-
-# Verify the file exists
-if [ ! -f "$used_wallpaper" ]; then
-  echo ":: Error: Wallpaper file $used_wallpaper does not exist" | tee -a /tmp/wallpaper_script.log
-  rm -f "$waypaperrunning"
-  exit 1
-fi
-# -----------------------------------------------------
-# Get wallpaper filename then kill GUI
-# -----------------------------------------------------
-wallpaperfilename=$(basename "$used_wallpaper")
-echo ":: Wallpaper Filename: $wallpaperfilename"
-pkill -f "waypaper" 2>/dev/null && echo ":: Closing Waypaper GUI"
-
-# -----------------------------------------------------
-# Execute pywal
-# -----------------------------------------------------
-echo ":: Execute pywal with $used_wallpaper"
-wal -q -i "$used_wallpaper"
-source "$HOME/.cache/wal/colors.sh"
-
-# -----------------------------------------------------
-# Reload Waybar
-# -----------------------------------------------------
-rm -f "$waypaperrunning"
-echo ":: Reloading Waybar"
-~/.config/waybar/launch.sh
-
-# -----------------------------------------------------
-# Update Pywalfox
-# -----------------------------------------------------
-if type pywalfox >/dev/null 2>&1; then
-  echo ":: Updating Pywalfox"
-  pywalfox update
-fi
-
-# -----------------------------------------------------
-# Update SwayNC
-# -----------------------------------------------------
-echo ":: Updating SwayNC"
-sleep 0.1
-swaync-client -rs
-
-# -----------------------------------------------------
-# Generate blurred wallpaper
-# -----------------------------------------------------
-echo ":: Generating blurred wallpaper with blur $blur"
-magick "$used_wallpaper" -resize 75% "$blurredwallpaper"
-if [ "$blur" != "0x0" ]; then
-  magick "$blurredwallpaper" -blur "$blur" "$blurredwallpaper"
-  echo ":: Blurred"
-fi
-
-# -----------------------------------------------------
-# Create rasi file
-# -----------------------------------------------------
-if [ ! -f "$rasifile" ]; then
-  touch "$rasifile"
-fi
-echo "* { current-image: url(\"$blurredwallpaper\", height); }" >"$rasifile"
-
-# -----------------------------------------------------
-# Generate square wallpaper
-# -----------------------------------------------------
-echo ":: Generating square wallpaper"
-magick "$used_wallpaper" -gravity Center -extent 1:1 "$squarewallpaper"
+BLUR="50x30"
 
 # -----------------------------------------------------
 # Cleanup
 # -----------------------------------------------------
-rm -f "$waypaperrunning"
-echo ":: Lock file removed"
-echo ":: Wallpaper update complete"
+cleanup() {
+  rm -f "$LOCKFILE"
+}
+trap cleanup EXIT
+
+mkdir -p "$CACHE_DIR"
+
+# -----------------------------------------------------
+# Lock
+# -----------------------------------------------------
+[[ -f "$LOCKFILE" ]] && exit 0
+touch "$LOCKFILE"
+
+# -----------------------------------------------------
+# Resolve wallpaper
+# -----------------------------------------------------
+get_from_waypaper() {
+  grep '^wallpaper =' "$WAYPAPER_CONFIG" |
+    cut -d '=' -f2- |
+    sed 's/^[[:space:]]*//;s/[[:space:]]*$//' |
+    sed "s|~|$HOME|"
+}
+
+if [[ "${1:-}" == "init" ]]; then
+  WALLPAPER="$(get_from_waypaper)"
+else
+  WALLPAPER="${1:-$(get_from_waypaper)}"
+fi
+
+WALLPAPER="${WALLPAPER/#\~/$HOME}"
+[[ -f "$WALLPAPER" ]] || exit 1
+
+# -----------------------------------------------------
+# Apply wallpaper (hyprpaper)
+# -----------------------------------------------------
+cp "$WALLPAPER" "$CURRENT_WALLPAPER"
+pkill hyprpaper 2>/dev/null || true
+sleep 0.2
+hyprpaper >/dev/null 2>&1 &
+
+# -----------------------------------------------------
+# Kill picker
+# -----------------------------------------------------
+pkill -f waypaper 2>/dev/null || true
+
+# -----------------------------------------------------
+# Theme + UI
+# -----------------------------------------------------
+wal -q -i "$WALLPAPER"
+source "$HOME/.cache/wal/colors.sh"
+
+"$HOME/.config/waybar/launch.sh"
+
+command -v pywalfox >/dev/null && pywalfox update
+
+sleep 0.1
+swaync-client -rs
+
+# -----------------------------------------------------
+# Derived images
+# -----------------------------------------------------
+magick "$WALLPAPER" -resize 75% "$BLURRED_WALLPAPER"
+
+[[ "$BLUR" != "0x0" ]] &&
+  magick "$BLURRED_WALLPAPER" -blur "$BLUR" "$BLURRED_WALLPAPER"
+
+magick "$WALLPAPER" -gravity Center -extent 1:1 "$SQUARE_WALLPAPER"
+
+touch "$RASI_FILE"
