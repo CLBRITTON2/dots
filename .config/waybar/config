@@ -6,12 +6,10 @@
   "margin-right": 0,
   "spacing": 0,
 
-  // Load Modules
   "include": [
     "~/.config/waybar/modules.json"
   ],
 
-  // Modules Left
   "modules-left": [
     "hyprland/workspaces",
     "disk",
@@ -19,12 +17,10 @@
     "memory"
   ],
 
-  // Modules Center
   "modules-center": [
     "clock"
   ],
 
-  // Modules Right
   "modules-right": [
     "custom/updates",
     "pulseaudio",
